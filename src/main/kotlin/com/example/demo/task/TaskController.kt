@@ -7,7 +7,6 @@ import java.lang.IllegalArgumentException
 @RestController
 @RequestMapping("/api/tasks")
 class TaskController(
-    // ⬇️ MODIFICACIÓN: Ahora depende del Servicio, NO del Repositorio
     private val taskService: TaskService 
 ) {
 
@@ -32,7 +31,7 @@ class TaskController(
 
     // --- PUT (Actualizar) ---
     @PutMapping("/{id}")
-    fun updateTask(@PathVariable id: Long, @RequestBody request: TaskUpdateRequest): ResponseEntity<TaskResponse> {
+    fun updateTask(@PathVariable id: Int, @RequestBody request: TaskUpdateRequest): ResponseEntity<TaskResponse> {
         val updatedTask = taskService.updateTask(id, request)
         
         // Si el servicio devuelve null (no encontrado), devuelve 404
