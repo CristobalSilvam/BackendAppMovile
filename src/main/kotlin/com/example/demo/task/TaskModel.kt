@@ -24,11 +24,10 @@ data class TaskModel(
     @Column(name = "is_completed", nullable = false)
     var isCompleted: Boolean = false,
 
-    val reminderTime: LocalDateTime? = null
+    val reminderTime: LocalDateTime? = null,
 
-    // Opcional Avanzado: Relación con Usuario
-    //@ManyToOne
-    //val UserModel: UserModel
-    // @JoinColumn(name = "user_id")
-    // val user: User
+    //Relación con Usuario
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    val user: UserModel
 )

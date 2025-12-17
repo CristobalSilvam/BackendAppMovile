@@ -2,54 +2,51 @@ package com.example.demo.task
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.lang.IllegalArgumentException
 
 @RestController
 @RequestMapping("/api/tasks")
-class TaskController(
-    private val taskService: TaskService 
-) {
+class TaskController(private val taskService: TaskService) {
 
-    // --- GET (Leer Todas) ---
+    // Obtener tareas según el rol del usuario
     @GetMapping
-    fun getAllTasks(): ResponseEntity<List<TaskResponse>> {
-        val taskResponses = taskService.getAllTasks()
-        return ResponseEntity.ok(taskResponses)
+    fun getAll(@RequestParam userId: Long): ResponseEntity<List<TaskResponse>> {
+        return ResponseEntity.ok(taskService.getAllTasks(userId))
     }
 
-    // --- POST (Crear) ---
+    // Crear tarea vinculada al usuario
     @PostMapping
-    fun createTask(@RequestBody request: TaskCreateRequest): ResponseEntity<Any> {
+    fun create(@RequestParam userId: Long, @RequestBody request: TaskCreateRequest): ResponseEntity<Any> {
         return try {
-            val savedTask = taskService.createTask(request)
-            ResponseEntity.ok(savedTask)
-        } catch (e: IllegalArgumentException) {
-            // Si el servicio lanza un error de validación, devuelve 400 Bad Request
+            val task = taskService.createTask(request, userId)
+            ResponseEntity.ok(task)
+        } catch (e: Exception) {
             ResponseEntity.badRequest().body(e.message)
         }
     }
 
-    // --- PUT (Actualizar) ---
+    // Actualizar tarea (con chequeo de permisos)
     @PutMapping("/{id}")
-    fun updateTask(@PathVariable id: Int, @RequestBody request: TaskUpdateRequest): ResponseEntity<TaskResponse> {
-        val updatedTask = taskService.updateTask(id, request)
-        
-        // Si el servicio devuelve null (no encontrado), devuelve 404
-        return updatedTask?.let {
-            ResponseEntity.ok(it)
-        } ?: ResponseEntity.notFound().build()
+    fun update(
+        @PathVariable id: Long,
+        @RequestParam userId: Long,
+        @RequestBody request: TaskUpdateRequest
+    ): ResponseEntity<Any> {
+        return try {
+            val updated = taskService.updateTask(id, userId, request)
+            ResponseEntity.ok(updated)
+        } catch (e: Exception) {
+            ResponseEntity.status(403).body(e.message)
+        }
     }
 
-    // --- DELETE (Borrar) ---
+    // Eliminar tarea (con chequeo de permisos)
     @DeleteMapping("/{id}")
-    fun deleteTask(@PathVariable id: Long): ResponseEntity<Unit> {
-        val success = taskService.deleteTask(id)
-
-        // Si el servicio devuelve false (no encontrado), devuelve 404
-        return if (success) {
-            ResponseEntity.noContent().build() // 204 Éxito
-        } else {
-            ResponseEntity.notFound().build() // 404 No Encontrado
+    fun delete(@PathVariable id: Long, @RequestParam userId: Long): ResponseEntity<Any> {
+        return try {
+            taskService.deleteTask(id, userId)
+            ResponseEntity.noContent().build()
+        } catch (e: Exception) {
+            ResponseEntity.status(403).body(e.message)
         }
     }
 }

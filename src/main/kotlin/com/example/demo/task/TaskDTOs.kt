@@ -24,7 +24,10 @@ data class TaskResponse(
     val description: String?,
     val location: String?,
     val priority: String,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+
+    val userId: Long,
+    val userEmail: String
 )
 
 // Helper para convertir la Entidad (Task) a un DTO (TaskResponse)
@@ -35,6 +38,8 @@ fun TaskModel.toResponse(): TaskResponse {
         description = this.description,
         location = this.location,
         priority = this.priority,
-        isCompleted = this.isCompleted
+        isCompleted = this.isCompleted,
+        userId = this.user.id!!,
+        userEmail = this.user.email
     )
 }

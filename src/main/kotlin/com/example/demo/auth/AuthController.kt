@@ -1,11 +1,11 @@
-package com.example.demo.user
+package com.example.demo.auth
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.lang.IllegalArgumentException 
 
-import com.example.demo.user.LoginRequest
-import com.example.demo.user.RegisterRequest
+import com.example.demo.auth.LoginRequest
+import com.example.demo.auth.RegisterRequest
 
 @RestController
 @RequestMapping("/api/auth") // URL base

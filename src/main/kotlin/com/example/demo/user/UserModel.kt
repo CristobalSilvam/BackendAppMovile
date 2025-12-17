@@ -13,7 +13,10 @@ data class UserModel(
     val email: String,
 
     @Column(nullable = false)
-    val passwordHash: String // Guardaremos la contraseña (simulada) aquí
+    val passwordHash: String, // Guardaremos la contraseña (simulada) aquí
     
+    @Enumerated(EnumType.STRING) // Guarda el nombre del rol (ej: "ADMIN") en la DB
+    @Column(nullable = false)
+    val role: UserRole = UserRole.USER // Por defecto todos son usuarios base
     // Aquí podrías añadir 'nombre', 'apellido', etc.
 )
