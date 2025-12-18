@@ -18,26 +18,11 @@ class TaskService(
     fun getAllTasks(requestingUserId: Long): List<TaskResponse> {
         val user = userRepository.findById(requestingUserId)
             .orElseThrow { IllegalArgumentException("Usuario no encontrado") }
-
-        val tasks = when (user.role) {
-            // 1. ADMIN: Ve todas las tareas de todos los usuarios
-            UserRole.ADMIN -> taskRepository.findAll()
-
-            // 2. LEADER: Ve sus tareas + las tareas de los miembros de su grupo
-            UserRole.LEADER -> {
-                val myTasks = taskRepository.findByUser(user)
-                val memberTasks = groupRepository.findByLeader(user)
-                    .flatMap { it.members }
-                    .flatMap { taskRepository.findByUser(it) }
-                (myTasks + memberTasks).distinctBy { it.id }
-            }
-
-            // 3. USER y PREMIUM: Solo ven las tareas que les pertenecen
-            else -> taskRepository.findByUser(user)
-        }
-        
+    
+        val tasks = taskRepository.findByUser(user)
+    
         return tasks.map { it.toResponse() }
-    }
+    } // <--- ¡AQUÍ FALTABA ESTA LLAVE! (Cierre de getAllTasks)
 
     // --- POST (Crear Tarea vinculada al Usuario) ---
     fun createTask(request: TaskCreateRequest, userId: Long): TaskResponse {
@@ -47,7 +32,7 @@ class TaskService(
         // Validación de negocio para Usuario Base (Límite de tareas)
         if (userOwner.role == UserRole.USER) {
             val taskCount = taskRepository.findByUser(userOwner).size
-            if (taskCount >= 10) { // Ejemplo: límite de 10 tareas para gratuitos
+            if (taskCount >= 10) { 
                 throw IllegalArgumentException("Has alcanzado el límite de tareas. ¡Pásate a PREMIUM!")
             }
         }
@@ -118,4 +103,4 @@ class TaskService(
         taskRepository.deleteById(taskId)
         return true
     }
-}
+} // <--- Cierre de la clase TaskService
